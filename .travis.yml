@@ -1,0 +1,10 @@
+language: scala
+scala:
+   - 2.11.7
+jdk:
+   - oraclejdk8
+notifications:
+  email:
+    - kfer38@gmail.com
+script:
+   - sbt ++$TRAVIS_SCALA_VERSION "test" "project wip" "test" "project bsl4" "test"

@@ -1,0 +1,13 @@
+@import bsl4.Bsl4
+
+@(text: String)(implicit flash: Flash)
+
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <div>@text</div>
+        <div>@Bsl4.name</div>
+        <div>@{text.zipAll(Bsl4.name, "!", "!")}</div>
+    </body>
+</html>
