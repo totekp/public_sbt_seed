@@ -5,8 +5,9 @@ object Library {
   val ScalaVersion: String = "2.11.7"
   val ScalaLibrary = "org.scala-lang" % "scala-library" % ScalaVersion
 
-  // http://akka.io/news/2015/09/16/akka-2.3.14-released.html
-  val AkkaVersion: String = "2.3.14"
+  // stable url: http://akka.io/news/
+  // http://akka.io/news/2015/09/30/akka-2.4.0-released.html
+  val AkkaVersion: String = "2.4.0"
   val AkkaActor: ModuleID = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
   val AkkaCluster = "com.typesafe.akka" %% "akka-cluster" % AkkaVersion
   val AkkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion

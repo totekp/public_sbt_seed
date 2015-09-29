@@ -1,6 +1,13 @@
 import java.io.{File, IOException, PrintWriter}
+import java.security.MessageDigest
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, LocalTime, ZoneId}
+import java.util.UUID
 
-import scala.io.Source
+import scala.collection.mutable
+import scala.concurrent.duration.{FiniteDuration, _}
+import scala.io.{BufferedSource, Source}
+import scala.math.BigDecimal.RoundingMode
 import scala.util.Try
 import scala.xml.Elem
 
@@ -10,11 +17,11 @@ import scala.xml.Elem
  *
  * Ex.
  * runMain UdacityNotes -i "/Users/kefuzhou/Downloads/P3L5 Non-Functional Reqs & Arch Styles Subtitles"
- * runMain UdacityNotes -i "/Users/kefuzhou/Downloads/Software Architecture & Design Subtitles" -cf
+ * runMain UdacityNotes -i "/Users/kefuzhou/Downloads/Software Architecture & Design Subtitles" -cf -r 1
  */
 object UdacityNotes {
 
-  case class Data(title: String, body: String)
+  case class Data(title: String, body: String, duration: Option[FiniteDuration])
 
   val isDebug: Boolean = false
   println(s"Debugging is ${isDebug}")
@@ -25,13 +32,14 @@ object UdacityNotes {
   def main(args: Array[String]): Unit = {
     val path = getArgumentValue("-i", args)
     val isCourseFolder = args.contains("-cf")
+    val rotateCount = Try(getArgumentValue("-r", args)).map(_.toInt).getOrElse(0)
 
     val lessonFolders = {
       if (isCourseFolder) {
         val dir = new File(path)
         assert(dir.isDirectory, s"Dir should be a directory of lesson directories: ${path}")
-        val lessonFolders = dir.listFiles().filter(_.isDirectory)
-        val result = sortFiles(lessonFolders.toList)
+        val lessonFolders = dir.listFiles().filter(_.isDirectory).toList
+        val result = rotate(rotateCount, sortFiles(lessonFolders.toList))
         result
       } else {
         List(new File(path))
@@ -44,19 +52,59 @@ object UdacityNotes {
     val pw = new PrintWriter(new File(s"UdacityNotes_${folderTitle}.html"))
     pw.println("<html><body>")
     pw.println(<h1 class="folderTitleHeader">{s"Folder Title: ${folderTitle}"}</h1>)
+    val totalVideoTimeString = {
+      val parts = lessonFolders.flatMap(_.listFiles()).map(f => getEndTime(f).map(_.toMillis))
+      val numUnknowns = parts.count(_.isEmpty)
+      val totalMillis = parts.collect{case Some(endTime) => endTime}.sum.millis
+      val localTime = LocalTime.ofNanoOfDay(totalMillis.toNanos)
+      val unknownString = {
+        if (numUnknowns == 0) ""
+        else if (numUnknowns == 1) " + 1 Unknown"
+        else s" + ${numUnknowns} Unknowns"
+      }
+      localTime.toString + unknownString
+    }
 
-    val xmlPrettyPrinter = new scala.xml.PrettyPrinter(120, 2)
+    pw.println(<div>{"Total Video Time: %s".format(totalVideoTimeString)}</div>)
+    val timeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm:ssa z").withZone(ZoneId.of("America/New_York"))
+    val updateTimeString = timeFormatter.format(LocalDateTime.now())
+    pw.println(<div>{"Updated: %s".format(updateTimeString)}</div>)
+
     def surroundText(in: String) = s"\n$in\n"
+
+    val tableOfContents = createTableOfContents(lessonFolders)
+    pw.println(tableOfContents)
+
     lessonFolders.foreach { folder =>
       val sectionDatas = getFilesSorted(folder.getAbsolutePath).toVector.map(parseFile)
         .map { data =>
         data.copy(body = parseSubtitleText(data.body))
       }
+      val numUnknowns = sectionDatas.count(_.duration.isEmpty)
+      val totalLessonFolderTime = sectionDatas.map(_.duration).collect { case Some(d) => d.toMillis }.sum.millis
+      val unknownString = {
+        numUnknowns match {
+          case 0 => ""
+          case 1 => " + 1 Unknown"
+          case n => s" + ${n} Unknowns"
+        }
+      }
+
       val lessonXml: Elem = {
         <div class="lesson">
-          <div class="lessonTitle"><h2 class="lessonTitleHeader">{surroundText(s"Lesson Title: ${folder.getName}")}</h2></div>{
+          <div class="lessonTitle">
+            <h2 class="lessonTitleHeader" id={getLessonId(folder.getName)}>
+              <a href={"#%s".format(getTableOfContentsId(folder.getName, ""))}>{surroundText(s"Lesson: ${folder.getName} (${sprintEndTime(totalLessonFolderTime)}${unknownString})")}</a>
+            </h2>
+          </div>{
           sectionDatas.map { data =>
-            <div class="sectionData"><h3 class="sectionTitleHeader">{surroundText(s"Section Title: ${data.title}")}</h3></div>
+            <div class="sectionData">
+              <h3 class="sectionTitleHeader" id={getSectionId(folder.getName, data.title)}>
+                <a href={"#%s".format(getTableOfContentsId(folder.getName, data.title))}>
+                  {surroundText(s"Section: ${data.title} ${data.duration.map(a => "(%s)".format(sprintEndTime(a))).getOrElse("")}")}
+                </a>
+              </h3>
+            </div>
             <br/>
             <div>{surroundText(wordWrap(data.body, 120))}</div>
             <br/>
@@ -68,9 +116,16 @@ object UdacityNotes {
 
     pw.println("</body></html>")
     pw.close()
+
   }
 
+  private def rotate[A](n: Int, ls: List[A]): List[A] = {
+    val nBounded = if (ls.isEmpty) 0 else n % ls.length
+    if (nBounded < 0) rotate(nBounded + ls.length, ls)
+    else (ls drop nBounded) ::: (ls take nBounded)
+  }
 
+  val xmlPrettyPrinter = new scala.xml.PrettyPrinter(120, 2)
 
   def getArgumentValue(flag: String, args: Array[String]): String = {
     val i = args.indexWhere(_ == flag)
@@ -87,9 +142,6 @@ object UdacityNotes {
   def parseSubtitleText(input: String): String = {
 
     def isNumberLine(line: String) = Try(line.toDouble).isSuccess
-    def isRangeLine(line: String) = {
-      line.take(8).forall(c => "0123456789:,.".contains(c))
-    }
 
     val lines = Source.fromString(input).getLines().toVector
     val textLines = StringBuilder.newBuilder
@@ -105,7 +157,11 @@ object UdacityNotes {
     textLines.toString()
   }
 
-  def getFilesSorted(path: String): Seq[File] = {
+  private def isRangeLine(line: String) = {
+    line.take(8).forall(c => "0123456789:,.".contains(c))
+  }
+
+  def getFilesSorted(path: String): List[File] = {
     val file = new File(path)
     if (!file.exists()) {
       throw new IOException(s"File not found at: ${file.getAbsolutePath}")
@@ -114,28 +170,45 @@ object UdacityNotes {
     sortFiles(files)
   }
 
-  def sortFiles(files: Seq[File]): Seq[File] = {
+  def sortFiles(files: Seq[File]): List[File] = {
     val possibleNumbers = Try(files.map(_.getName.split("-",2).head.filter(c => !c.isWhitespace).toDouble).toVector)
     possibleNumbers match {
       case util.Success(numbers) =>
-        files.zip(numbers).sortBy(_._2).map(_._1)
+        files.zip(numbers).sortBy(_._2).map(_._1).toList
       case _ =>
-        files.sortBy(_.getName)
+        files.sortBy(_.getName).toList
     }
   }
 
   def parseFile(file: File): Data = {
+    val title = getSectionTitleFromFile(file)
+    val body = useThenCloseFile(file, _.getLines().mkString("\n"))
+    val duration = getEndTime(file)
+    Data(title, body, duration)
+  }
+
+  private def useThenCloseFile[A](file: File, fn: BufferedSource => A) = {
+    val b = Source.fromFile(file)
+    val result = fn(b)
+    b.close()
+    result
+  }
+
+  def getSectionTitleFromFile(file: File): String = {
     val pattern = """\d+ - (.*)\.srt""".r
     val title = pattern.findFirstMatchIn(file.getName).get.group(1).trim
-    val body = Source.fromFile(file).getLines().mkString("\n")
-    Data(title, body)
+    title
   }
 
   def wordWrap(text: String, maxLength: Int): String = {
+    wordWrap(text.split(" "), maxLength)
+  }
+
+  def wordWrap(tokens: Seq[String], maxLength: Int): String = {
     var spaceLeft = maxLength
     val spaceWidth = 1
     val sb = StringBuilder.newBuilder
-    text.split(" ").foreach { word  =>
+    tokens.foreach { word  =>
       if (word.length + spaceWidth > spaceLeft) {
         sb.append(s"\n$word ")
         spaceLeft = maxLength - word.length - spaceWidth
@@ -150,4 +223,96 @@ object UdacityNotes {
     }
     out
   }
+
+  def createUUIDString(): String = {
+    UUID.randomUUID().toString.replace("-", "")
+  }
+
+  def convertByteArrayToHexString(arrayBytes: Array[Byte]): String = {
+    val sb = mutable.StringBuilder.newBuilder
+    arrayBytes.indices.foreach { i =>
+      sb.append(Integer.toString((arrayBytes(i) & 0xff) + 0x100, 16)
+        .substring(1))
+    }
+    sb.toString()
+  }
+
+  def sha1Hash(prefix: String, lessonName: String, sectionName: String): String = {
+    val input = s"$lessonName$sectionName"
+    val bytes = MessageDigest.getInstance("SHA-1").digest(input.getBytes)
+    "%s%s".format(prefix,convertByteArrayToHexString(bytes))
+  }
+
+  def getSectionId(lessonName: String, sectionName: String) = {
+    sha1Hash("s_", lessonName, sectionName)
+  }
+  
+  def getLessonId(lessonName: String) = {
+    sha1Hash("l_", lessonName, "")
+  }
+  
+  def getTableOfContentsId(lessonName: String, sectionName: String) = {
+    sha1Hash("t_", lessonName, sectionName)
+  }
+
+  def createTableOfContents(lessonFolders: Seq[File]): String = {
+    val xml = <div><ul>{
+      lessonFolders.map { lessonFolder =>
+        val (totalLessonFolderTime, numUnknowns) = {
+          val parts = lessonFolder.listFiles().map(f => getEndTime(f).map(_.toMillis))
+          val numUnknowns = parts.count(_.isEmpty)
+          (parts.collect{case Some(endTime) => endTime}.sum.millis, numUnknowns)
+        }
+        val unknownString = {
+          numUnknowns match {
+            case 0 => ""
+            case 1 => " + 1 Unknown"
+            case n => s" + ${n} Unknowns"
+          }
+        }
+
+        <div>
+          <li>
+            <div id={getTableOfContentsId(lessonFolder.getName, "")}>
+              <a href={s"#${getLessonId(lessonFolder.getName)}"}>{s"${lessonFolder.getName} (${sprintEndTime(totalLessonFolderTime)}${unknownString})"}</a>
+            </div>
+          </li>
+          <ul>{
+            sortFiles(lessonFolder.listFiles().toList).map { sectionFile =>
+              val sectionTitle = getSectionTitleFromFile(sectionFile)
+              val title = s"$sectionTitle ${getEndTime(sectionFile).map(a => "(%s)".format(sprintEndTime(a))).getOrElse("")}"
+              <li>
+                <a id={getTableOfContentsId(lessonFolder.getName, getSectionTitleFromFile(sectionFile))}
+                   href={s"#${getSectionId(lessonFolder.getName, getSectionTitleFromFile(sectionFile))}"}>{title}</a>
+              </li>
+            }
+          }</ul>
+        </div>
+      }
+    }</ul></div>
+//    xmlPrettyPrinter.format(xml)
+    xml.toString
+  }
+
+  def getEndTime(sectionFile: File): Option[FiniteDuration] = {
+    val pattern = """(\d+:\d+:[\d\.,]+)$""".r
+    val candidateLinesFromLast: Vector[String] = {
+      useThenCloseFile(sectionFile, _.getLines().filter(isRangeLine).toVector.reverse)
+    }
+    val optTotal: Option[FiniteDuration] = {
+      candidateLinesFromLast.view.map(line => pattern.findFirstMatchIn(line).map(_.group(0))).collectFirst {
+        case Some(endTimeString) =>
+          val Array(hh, mm, ss) = endTimeString.replace(",", ".").split(":").map(_.toDouble)
+          val total = hh.hours + mm.minutes + ss.seconds
+          total
+      }
+    }
+    optTotal
+  }
+
+  def sprintEndTime(duration: FiniteDuration): String = {
+    val value = BigDecimal(duration.toMillis / 6e4d).setScale(2, RoundingMode.HALF_EVEN).toString
+    s"$value minutes"
+  }
+
 }
