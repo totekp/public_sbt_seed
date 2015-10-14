@@ -50,7 +50,15 @@ object UdacityNotes {
 
     val folderTitle = new File(path).getName
     val pw = new PrintWriter(new File(s"UdacityNotes_${folderTitle}.html"))
-    pw.println("<html><body>")
+    pw.println(
+      s"""
+        |<!DOCTYPE html>
+        |<html>
+        |<head>
+        |<title>${folderTitle}</title>
+        |</head>
+        |<body>
+      """.stripMargin)
     pw.println(<h1 class="folderTitleHeader">{s"Folder Title: ${folderTitle}"}</h1>)
     val totalVideoTimeString = {
       val parts = lessonFolders.flatMap(_.listFiles()).map(f => getEndTime(f).map(_.toMillis))
