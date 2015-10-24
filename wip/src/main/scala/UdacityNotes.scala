@@ -51,8 +51,7 @@ object UdacityNotes {
     val folderTitle = new File(path).getName
     val pw = new PrintWriter(new File(s"UdacityNotes_${folderTitle}.html"))
     pw.println(
-      s"""
-        |<!DOCTYPE html>
+      s"""<!DOCTYPE html>
         |<html>
         |<head>
         |<title>${folderTitle}</title>
@@ -122,9 +121,37 @@ object UdacityNotes {
       pw.println(lessonXml)
     }
 
+    pw.println(
+      """
+        |<script>
+        |  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        |  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        |  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        |  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        |
+        |  ga('create', 'UA-65621875-1', 'auto');
+        |  ga('send', 'pageview');
+        |
+        |</script>
+      """.stripMargin)
     pw.println("</body></html>")
     pw.close()
 
+    val html: String = useThenCloseFile(new File(s"UdacityNotes_${folderTitle}.html"), _.getLines().mkString("\n"))
+    val ids: Map[String, String] = """id\s*=\s*"([A-Za-z0-9_]+)_([A-Za-z0-9_]+)"""".r
+      .findAllMatchIn(html)
+      .map(_.group(2))
+      .toList
+      .distinct
+      .zipWithIndex.map { case (s, i) =>
+        (s, BigInt(i).bigInteger.toString(36))
+      }.toMap
+    val compressedHtml = ids.foldLeft(html) { case (acc, (existingId, newId)) =>
+      acc.replaceAll(existingId, newId)
+    }
+    val pw2 = new PrintWriter(new File(s"UdacityNotes_${folderTitle}.html"))
+    pw2.println(compressedHtml)
+    pw2.close()
   }
 
   private def rotate[A](n: Int, ls: List[A]): List[A] = {

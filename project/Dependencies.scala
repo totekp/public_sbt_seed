@@ -14,7 +14,7 @@ object Library {
   val AkkaTestkit = "com.typesafe.akka" %% "akka-testkit" % AkkaVersion
 
   // https://spark.apache.org/releases/spark-release-1-5-0.html
-  val SparkVersion = "1.5.0"
+  val SparkVersion = "1.5.1"
   val SparkCore = "org.apache.spark" %% "spark-core" % SparkVersion
   val SparkMLib = "org.apache.spark" %% "spark-mllib" % SparkVersion
   val SparkGraphX = "org.apache.spark" %% "spark-graphx" % SparkVersion
@@ -23,6 +23,10 @@ object Library {
   val BreezeVersion = "0.11.2"
   val BreezeParent = "org.scalanlp" %% "breeze-parent" % BreezeVersion
   //  val BreezeNatives = "org.scalanlp" %% "breeze-natives" % BreezeVersion
+
+  // stable url: https://github.com/haifengl/smile
+  val SmileCore = "com.github.haifengl" % "smile-core" % "1.0.3"
+  val SmilePlot = "com.github.haifengl" % "smile-plot" % "1.0.3"
 
   // # db stuff
   // http://reactivemongo.org/releases/0.11/documentation/tutorial/play2.html (https://github.com/ReactiveMongo/Play-ReactiveMongo/issues/125)
@@ -35,9 +39,9 @@ object Library {
   val PlayMailer = "com.typesafe.play" %% "play-mailer" % "3.0.1"
   // https://www.playframework.com/documentation/2.4.x/PlaySlick
   // slick is transitive
-  val PlaySlick = "com.typesafe.play" %% "play-slick" % "1.0.1"
+  val PlaySlick = "com.typesafe.play" %% "play-slick" % "1.1.1"
   // evolutions is transitive
-  val PlaySlickEvolutions = "com.typesafe.play" %% "play-slick-evolutions" % "1.0.1"
+  val PlaySlickEvolutions = "com.typesafe.play" %% "play-slick-evolutions" % "1.1.1"
 
   // # other stuff
   val LogbackClassic = "ch.qos.logback" % "logback-classic" % "1.1.3"
@@ -49,10 +53,13 @@ object Library {
   val TypesafeConfig = "com.typesafe" % "config" % "1.3.0"
   val Jsoup = "org.jsoup" % "jsoup" % "1.8.2"
   // stable url: https://github.com/stripe/stripe-java, https://github.com/stripe/stripe-java/blob/master/CHANGELOG
-  val StripeJava = "com.stripe" % "stripe-java" % "1.37.0"
-  // stable url: http://slick.typesafe.com/news/all-news.html
-  // http://slick.typesafe.com/news/2015/09/11/slick-3.0.3-released.html
-  val Slick = "com.typesafe.slick" %% "slick" % "3.0.3"
+  val StripeJava = "com.stripe" % "stripe-java" % "1.37.1"
+  /*
+  stable url: http://slick.typesafe.com/news/all-news.html
+  history:
+  http://slick.typesafe.com/news/2015/09/11/slick-3.0.3-released.html
+   */
+  val Slick = "com.typesafe.slick" %% "slick" % "3.1.0"
   val Slf4jNop = "org.slf4j" % "slf4j-nop" % "1.6.4"
   val H2 = "com.h2database" % "h2" % "1.3.175"
   val HikariCP = "com.zaxxer" % "HikariCP" % "2.4.1"
@@ -65,9 +72,13 @@ object Library {
   val Jzy3d = "org.jzy3d" % "jzy3d-api" % "0.9.1"
 
   // # testing libs
-  // stable url: https://github.com/etorreborre/specs2/blob/master/notes
-  // https://github.com/etorreborre/specs2/blob/master/notes/3.6.4.markdown
-  val Specs2Core = "org.specs2" %% "specs2-core" % "3.6.4"
+  /*
+  stable url: https://github.com/etorreborre/specs2/blob/master/notes
+  history:
+  https://github.com/etorreborre/specs2/blob/master/notes/3.6.4.markdown
+  https://github.com/etorreborre/specs2/blob/master/notes/3.6.5.markdown
+   */
+  val Specs2Core = "org.specs2" %% "specs2-core" % "3.6.5"
   // http://www.scalatest.org/release_notes (https://github.com/etorreborre/specs2/blob/master/notes/3.6.2.markdown)
   val ScalaTest = "org.scalatest" %% "scalatest" % "2.2.4"
   val ScalaTestPlus = "org.scalatestplus" %% "play" % "1.2.0"
