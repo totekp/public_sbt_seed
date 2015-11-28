@@ -49,6 +49,30 @@ lazy val root = {
     .aggregate(wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
 }
 
+lazy val pure = {
+  Project(id = "pure", base = file("pure"))
+    .settings(
+      Seq(
+        organization := "user.kzhou",
+        version := "8.8-SNAPSHOT",
+        scalaVersion := "2.11.7",
+        resolvers ++= Seq(
+        ),
+        libraryDependencies ++= Seq(
+
+        ),
+        scalacOptions ++= Seq(
+          // https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings
+          "-deprecation" // Emit warning and location for usages of deprecated APIs.
+          , "-feature" // Emit warning and location for usages of features that should be imported explicitly.
+          , "-unchecked" // Enable additional warnings where generated code depends on assumptions.
+          , "-Xlint" // Enable recommended additional warnings.
+        )
+//        testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF")
+      )
+    )
+}
+
 lazy val wip = {
   Project(id = "wip", base = file("wip")).settings(commonSettings: _*)
     .settings(
