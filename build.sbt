@@ -50,7 +50,7 @@ lazy val root = {
 }
 
 lazy val wip = {
-  project.settings(commonSettings: _*)
+  Project(id = "wip", base = file("wip")).settings(commonSettings: _*)
     .settings(
       libraryDependencies ++= Seq(
         Library.SparkCore
@@ -72,25 +72,29 @@ lazy val updater = {
     .settings(libraryDependencies ++= Library.ALL)
 }
 
+def bslProject(name: String) = {
+  Project(id = name, base = file(s"bslProject/${name}"))
+}
+
 lazy val bsl1 = {
-  project.settings(commonSettings: _*)
+  bslProject("bsl1").settings(commonSettings: _*)
     .settings(libraryDependencies ++= Seq(Library.Experimental.AkkaStream, Library.Experimental.Parboiled2))
 }
 
 lazy val bsl2 = {
-  project.settings(commonSettings: _*)
+  bslProject("bsl2").settings(commonSettings: _*)
     .dependsOn(bsl1 % "test->test;compile->compile")
     .aggregate(bsl1)
 }
 
 lazy val bsl3 = {
-  project.settings(commonSettings: _*)
+  bslProject("bsl3").settings(commonSettings: _*)
     .dependsOn(bsl2 % "test->test;compile->compile")
     .aggregate(bsl2)
 }
 
 lazy val bsl4 = {
-  project.settings(commonSettings: _*)
+  bslProject("bsl4").settings(commonSettings: _*)
     .dependsOn(bsl3 % "test->test;compile->compile")
     .aggregate(bsl3)
 }
