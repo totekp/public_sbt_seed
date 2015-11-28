@@ -38,7 +38,13 @@ addCommandAlias("du", "dependencyUpdates")
 lazy val root = {
   Project(id = "root", base = file("."))
     .settings(commonSettings: _*)
-    .settings(libraryDependencies ++= Seq(Library.Jsoup, Library.PlayLibrary, Library.ScalaTest % Test))
+    .settings(
+      libraryDependencies ++= Seq(
+        Library.Jsoup
+        , Library.PlayLibrary
+        , Library.ScalaTest % Test
+      )
+    )
     .dependsOn(wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
     .aggregate(wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
 }
