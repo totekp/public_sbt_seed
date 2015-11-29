@@ -1,3 +1,5 @@
+package user.totekp.pure
+
 import java.io.ByteArrayOutputStream
 
 import org.scalactic.TripleEqualsSupport.Spread

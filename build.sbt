@@ -38,15 +38,8 @@ addCommandAlias("du", "dependencyUpdates")
 lazy val root = {
   Project(id = "root", base = file("."))
     .settings(commonSettings: _*)
-    .settings(
-      libraryDependencies ++= Seq(
-        Library.Jsoup
-        , Library.PlayLibrary
-        , Library.ScalaTest % Test
-      )
-    )
-    .dependsOn(pure, wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
-    .aggregate(pure, wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
+    .dependsOn(pure, wip, updater, bsl1, bsl2, bsl3, bsl4, play24, playSlick24)
+    .aggregate(pure, wip, updater, bsl1, bsl2, bsl3, bsl4, play24, playSlick24)
 }
 
 lazy val pure = {
@@ -59,7 +52,7 @@ lazy val pure = {
         resolvers ++= Seq(
         ),
         libraryDependencies ++= Seq(
-
+          "org.scalatest" %% "scalatest" % "2.2.4"
         ),
         scalacOptions ++= Seq(
           // https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings
@@ -82,6 +75,7 @@ lazy val wip = {
         , Library.SparkGraphX
         , Library.SparkCSV
         , Library.Experimental.AkkaStream
+        , Library.Jsoup
         , Library.ScalaTest
         , ws
       ),
@@ -96,7 +90,7 @@ lazy val updater = {
     .settings(libraryDependencies ++= Library.ALL)
 }
 
-def bslProject(name: String) = {
+def bslProject(name: String): Project = {
   Project(id = name, base = file(s"bslProject/${name}"))
 }
 
@@ -123,8 +117,12 @@ lazy val bsl4 = {
     .aggregate(bsl3)
 }
 
-lazy val play = {
-  project.settings(commonSettings: _*)
+def playProject(name: String): Project = {
+  Project(id = name, base = file(s"playProject/${name}"))
+}
+
+lazy val play24 = {
+  playProject("play24").settings(commonSettings: _*)
     .enablePlugins(PlayScala)
     .settings(
       // Play provides two styles of routers, one expects its actions to be injected, the
@@ -144,7 +142,7 @@ lazy val play = {
 }
 
 lazy val playSlick24 = {
-  project.settings(commonSettings: _*)
+  playProject("playSlick24").settings(commonSettings: _*)
     .enablePlugins(PlayScala)
     .settings(
       // Play provides two styles of routers, one expects its actions to be injected, the
