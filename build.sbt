@@ -45,8 +45,8 @@ lazy val root = {
         , Library.ScalaTest % Test
       )
     )
-    .dependsOn(wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
-    .aggregate(wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
+    .dependsOn(pure, wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
+    .aggregate(pure, wip, updater, bsl1, bsl2, bsl3, bsl4, play, playSlick24)
 }
 
 lazy val pure = {

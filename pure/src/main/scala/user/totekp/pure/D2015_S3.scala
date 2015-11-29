@@ -13,14 +13,14 @@ object StatsMath  {
 
   def stdevP(values: Seq[Double]): Double = {
     val avg: Double = average(values)
-    math.sqrt(values.map(v => math.pow(v - avg, 2)).sum / values.size)
+    math.sqrt(values.reduceLeft((acc, v) => acc + math.pow(v - avg, 2)) / values.size)
   }
 
   def average(values: Seq[Double]): Double = {
     if (values.isEmpty) {
       throw new Exception("Size must be > 0")
     }
-    values.foldLeft(0d)((acc, a) => acc + a) / values.length
+    values.sum / values.length
   }
 
   def standardize(x: Double, mean: Double, sd: Double): Double = {
@@ -29,7 +29,7 @@ object StatsMath  {
 
   def entropyFromProbabilities(ps: Seq[Double]): Double = {
     val validPs = validProbabilities(ps)
-    validPs.foldLeft(0d)((acc, a) => acc + (- a * log(a, 2)))
+    validPs.reduceLeft((acc, a) => acc + (- a * log(a, 2)))
   }
 
   def entropyFromFrequencies(fs: Seq[Double]): Double = {
