@@ -73,12 +73,16 @@ trait CoreScalaTestSpec
       Spread(d, BigDecimal(10).pow(-scale).doubleValue())
     }
 
-    def round2: Double = {
+    def scale2: Double = {
       round(d, 2)
     }
 
-    def round3: Double = {
+    def scale3: Double = {
       round(d, 3)
+    }
+
+    def scale4: Double = {
+      round(d, 4)
     }
   }
 
