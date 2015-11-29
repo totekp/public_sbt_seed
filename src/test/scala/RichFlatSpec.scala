@@ -94,14 +94,27 @@ trait CoreScalaTestSpec
 
     def pipe[U](f: A => U): U = f(in)
 
+    case class OverlapPredicate(cursorPos: Int, count: Int)
+
     import scala.annotation.tailrec
-    def countSubstring(substring: String): Int = {
+    def countSubstring(substring: String, canOverlap: Option[OverlapPredicate => Int] = None): Int = {
       val text = in.toString
       @tailrec
-      def count(pos: Int, c: Int): Int = {
-        val idx = text.indexOf(substring, pos)
-        if (idx == -1) c
-        else count(idx + substring.length, c + 1)
+      def count(pos: Int, cc: Int): Int = {
+        val nextIdx = text.indexOf(substring, pos)
+        if (nextIdx == -1) {
+          cc
+        }
+        else {
+          canOverlap match {
+            case Some(pred) =>
+              val predValue = pred(OverlapPredicate(pos, cc))
+              assert(predValue > 0, "predValue should be > 0")
+              count(nextIdx + predValue, cc + 1)
+            case None =>
+              count(nextIdx + substring.length, cc + 1)
+          }
+        }
       }
       count(0, 0)
     }
