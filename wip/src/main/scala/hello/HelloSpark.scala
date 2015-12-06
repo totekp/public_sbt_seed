@@ -1,5 +1,5 @@
+package hello
 
-import java.io.{File, PrintWriter}
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}

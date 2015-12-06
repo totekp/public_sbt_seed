@@ -1,3 +1,5 @@
+package hello
+
 import scala.xml.Elem
 
 object HelloScalaXml extends App {

@@ -59,13 +59,13 @@ trait CoreScalaTestSpec
     splitter(line).map(_.trim)
   }
 
-  def round(value: Double, scale: Int): Double = {
+  def scale(value: Double, scale: Int): Double = {
     BigDecimal(value).setScale(scale, RoundingMode.HALF_UP).doubleValue()
   }
 
   implicit class DoublePimper(val d: Double) {
-    def round1: Double = {
-      round(d, 1)
+    def scale1: Double = {
+      scale(d, 1)
     }
 
     def spread: Spread[Double] = {
@@ -74,15 +74,15 @@ trait CoreScalaTestSpec
     }
 
     def scale2: Double = {
-      round(d, 2)
+      scale(d, 2)
     }
 
     def scale3: Double = {
-      round(d, 3)
+      scale(d, 3)
     }
 
     def scale4: Double = {
-      round(d, 4)
+      scale(d, 4)
     }
   }
 

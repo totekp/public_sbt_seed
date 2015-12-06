@@ -78,6 +78,9 @@ lazy val wip = {
         , Library.Jsoup
         , Library.ScalaTest
         , ws
+        , "com.github.wookietreiber" %% "scala-chart" % "0.5.0"
+        , "com.itextpdf" % "itextpdf" % "5.5.6"
+        , "org.jfree" % "jfreesvg" % "3.0"
       ),
       dependencyOverrides ++= Set(
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4"

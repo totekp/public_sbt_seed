@@ -1,3 +1,5 @@
+package hello
+
 import com.ning.http.client.AsyncHttpClientConfig
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
@@ -6,7 +8,7 @@ import play.api.libs.ws.ning.NingWSClient
 import play.api.libs.ws.{WS, WSClient}
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future, ExecutionContext, ExecutionContextExecutor}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 import scala.io.Source
 
 object HelloPlayWS extends App with Matchers {

@@ -1,3 +1,5 @@
+package prototype
+
 import java.util.concurrent.TimeUnit
 
 import org.joda.time.DateTime
@@ -7,9 +9,9 @@ import play.api.libs.json._
 
 import scala.collection.JavaConverters._
 import scala.collection.parallel.immutable.ParSeq
-import scala.util.control.NonFatal
-import scala.util.{ Success, Try }
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
+import scala.util.{Success, Try}
 
 object RosalindScraper extends App {
 

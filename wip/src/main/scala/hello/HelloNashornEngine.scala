@@ -1,5 +1,7 @@
+package hello
+
 import java.io.FileReader
-import javax.script.{ScriptEngineManager, ScriptEngine}
+import javax.script.{ScriptEngine, ScriptEngineManager}
 
 import org.scalatest.Matchers
 

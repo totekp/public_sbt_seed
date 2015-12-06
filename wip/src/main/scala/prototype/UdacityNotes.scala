@@ -1,3 +1,5 @@
+package prototype
+
 import java.io.{File, IOException, PrintWriter}
 import java.security.MessageDigest
 import java.time.format.DateTimeFormatter
