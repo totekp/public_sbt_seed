@@ -182,6 +182,11 @@ object StatsMath  {
 
 // #CodeCoverage 100%
 case class ConfusionMatrix2(testP: Double, actualP: Double, trueP: Double) {
+  private def isProbability(in: Double) = in >= 0d && in <= 1d
+  assert(isProbability(testP), "testP should be probability")
+  assert(isProbability(actualP), "actualP should be probability")
+  assert(isProbability(trueP), "trueP should be probability")
+
   import StatsMath._
   val testN: Double = 1d - testP
   val actualN: Double = 1d - actualP
@@ -211,12 +216,16 @@ case class ConfusionMatrix2(testP: Double, actualP: Double, trueP: Double) {
     */
   val ee: Double = trueP
 
+  val TP: Double = ee
+
   /**
     * false Negative
     */
   val ff: Double = aa - ee
 
   val falseN: Double = ff
+
+  val FN: Double = ff
 
   /**
     * false Positive
@@ -225,12 +234,16 @@ case class ConfusionMatrix2(testP: Double, actualP: Double, trueP: Double) {
 
   val falseP: Double = gg
 
+  val FP: Double = gg
+
   /**
     * true Negative
     */
   val hh: Double = bb - gg
 
   val trueN: Double = hh
+
+  val TN: Double = hh
 
   // conditional properties
   val true_P_rate: Double = ee / aa
@@ -323,6 +336,35 @@ case class ConfusionMatrix2(testP: Double, actualP: Double, trueP: Double) {
   def I_xy: Double = {
     H_x - H_x_given_y
   }
+
+  /**
+    * P(Correctly classified)
+    */
+  val accuracy: Double = TP + TN
+
+  /**
+    * P(actual P| all P)
+    */
+  val precision: Double = TP / (TP + FP)
+
+  /**
+    * P(actual P| relevant P)
+    * https://en.wikipedia.org/wiki/Precision_and_recall
+    */
+  val recall: Double = TP / (TP + FN)
+
+  /**
+    * harmonic mean
+    * ranges between 0 (Worst) and 1 (Best)
+    */
+  val FMeasure: Double = (2 * precision * recall) / (precision + recall)
+
+  /**
+    * geometric mean
+    */
+  val GMeasure: Double = math.sqrt(precision * recall)
+
+
 
 }
 
