@@ -91,6 +91,11 @@ lazy val wip = {
 lazy val updater = {
   project.settings(commonSettings: _*)
     .settings(libraryDependencies ++= Library.ALL)
+  /*
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.4"
+libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.4"
+libraryDependencies += "org.mockito" % "mockito-core" % "1.10.8"
+   */
 }
 
 def bslProject(name: String): Project = {

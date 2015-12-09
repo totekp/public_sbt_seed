@@ -17,6 +17,12 @@ object StatsMath  {
     math.sqrt(values.foldLeft(0d)((acc, v) => acc + math.pow(v - avg, 2)) / values.size)
   }
 
+  def stdevS(values: Seq[Double]): Double = {
+    val avg: Double = average(values)
+    assert(values.nonEmpty, "values.size > 0")
+    math.sqrt(values.foldLeft(0d)((acc, v) => acc + math.pow(v - avg, 2)) / (values.size - 1))
+  }
+
   def average(values: Seq[Double]): Double = {
     if (values.isEmpty) {
       throw new Exception("Size must be > 0")
@@ -26,6 +32,106 @@ object StatsMath  {
 
   def standardize(x: Double, mean: Double, sd: Double): Double = {
     (x - mean) / sd
+  }
+
+  /**
+    * https://support.office.com/en-us/article/RSQ-function-d7161715-250d-4a01-b80d-a8364f2be08f
+    * @param xValues
+    * @param yValues
+    * @param isNotOutlier
+    */
+  def rsq(xValues: Seq[Double], yValues: Seq[Double], isNotOutlier: ((Double, Double)) => Boolean): Double = {
+    assert(xValues.size == yValues.size, "X and Y values must have same size")
+    assert(xValues.nonEmpty, "values cannot be empty")
+    val averageX = average(xValues)
+    val averageY = average(yValues)
+    val pairs= xValues.zip(yValues)
+    val filteredPairs = pairs.filter(isNotOutlier)
+    val numerator = filteredPairs.foldLeft(0d) { case (acc, (xx, yy)) =>
+      acc + ((xx - averageX) * (yy - averageY))
+    }
+    val (sumXSqr, sumYSqr) = filteredPairs.foldLeft((0d, 0d)) { case ((accX, accY), (xx, yy)) =>
+      (accX + math.pow(xx - averageX, 2), accY + math.pow(yy - averageY, 2))
+    }
+    val r = numerator / math.sqrt(sumXSqr * sumYSqr)
+    val rsq = math.pow(r, 2)
+    rsq
+  }
+
+  def curveSimilarity(range0: Seq[Double], range1: Seq[Double]): Vector[Double] = {
+    assert(range0.nonEmpty, "range0 should be nonempty")
+    assert(range0.size == range1.size, "range0 and range1 should have same size")
+    val N = range0.size
+    val residualSqs: Seq[Double] = range0.zip(range1).map { case (aa, bb) => math.pow(aa - bb, 2) }
+    val residualSqSum = range0.zip(range1).foldLeft(0d) { case (acc, (aa, bb)) => acc + math.pow(aa - bb, 2) }
+    val averageResidualSq = residualSqSum / range0.size
+    val stdevSResidualSq = stdevS(residualSqs)
+
+    val skewnessResidualSq: Double = {
+      residualSqs.foldLeft(0d)((acc, aa) => acc + math.pow(aa - averageResidualSq, 3)) / ((N - 1).toDouble * math.pow(stdevSResidualSq, 3))
+    }
+    val kurtosisResidualSq: Double = {
+      residualSqs.foldLeft(0d)((acc, aa) => acc + math.pow(aa - averageResidualSq, 4)) / ((N - 1).toDouble * math.pow(stdevSResidualSq, 4))
+    }
+    Vector(averageResidualSq, stdevSResidualSq, skewnessResidualSq, kurtosisResidualSq)
+  }
+
+  def lnDeltas(values: Seq[Double]): Iterator[Double] = {
+    values.sliding(2).map {
+      case Seq(aa, bb) =>
+        ln(bb / aa)
+    }
+  }
+
+  def sma(values: Seq[Double], period: Int): Vector[Double] = {
+    require(period > 0 && period <= values.size, "Period is out of bound")
+    val result = values.take(period - 1).toVector ++ values.sliding(period).toVector.map {
+      window =>
+        window.foldLeft(0d)(_ + _) / period
+    }
+    assert(result.size == values.size, "sizes are not equal")
+    result
+  }
+
+  def emaWithAlpha(values: Seq[Double], period: Int, alpha: Double): Vector[Double] = {
+    require(period > 0 && period <= values.size, "Period is out of bound")
+    values.foldLeft(Vector.empty[Double]) {
+      case (acc, value) if acc.isEmpty =>
+        acc :+ value.toDouble
+      case (acc, value) =>
+        val ema_prev = acc.last
+        acc :+ ((value * alpha) + (ema_prev * (1d - alpha)))
+    }
+  }
+
+  def ema(values: Seq[Double], period: Int): Vector[Double] = {
+    require(period > 0 && period <= values.size, "Period is out of bound")
+    val k: Double = 2d / (period + 1) // smoothing factor
+    emaWithAlpha(values, period, k)
+  }
+
+  def macdLine(values: Seq[Double], shortPeriod: Int = 12, longPeriod: Int = 26): Vector[Double] = {
+    val emaShort = ema(values, shortPeriod)
+    val emaLong = ema(values, longPeriod)
+    val macdLine = (emaShort, emaLong).zipped.map {
+      case (e2, e1) =>
+        e2 - e1
+    }
+    macdLine
+  }
+
+  def macdSignalLine(values: Seq[Double], shortPeriod: Int = 12, longPeriod: Int = 26, signalPeriod: Int = 9): Vector[Double] = {
+    ema(macdLine(values, shortPeriod, longPeriod), signalPeriod)
+  }
+
+  def macdHistogram(values: Seq[Double], shortPeriod: Int = 12, longPeriod: Int = 26, signalPeriod: Int = 9): Vector[Double] = {
+    val _macdLine = macdLine(values, shortPeriod, longPeriod)
+    val _signalLine = macdSignalLine(values, shortPeriod, longPeriod, signalPeriod)
+    val macdHistogram = (_macdLine, _signalLine).zipped.map {
+      case (e2, e1) =>
+        e2 - e1
+    }
+    macdHistogram
   }
 
   def entropyFromProbabilities(ps: Seq[Double]): Double = {
