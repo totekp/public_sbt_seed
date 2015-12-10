@@ -76,11 +76,11 @@ object StatsMath  {
     Vector(averageResidualSq, stdevSResidualSq, skewnessResidualSq, kurtosisResidualSq)
   }
 
-  def lnDeltas(values: Seq[Double]): Iterator[Double] = {
+  def lnDeltas(values: Seq[Double]): Vector[Double] = {
     values.sliding(2).map {
       case Seq(aa, bb) =>
         ln(bb / aa)
-    }
+    }.toVector
   }
 
   def sma(values: Seq[Double], period: Int): Vector[Double] = {

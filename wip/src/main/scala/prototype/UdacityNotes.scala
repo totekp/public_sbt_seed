@@ -62,7 +62,7 @@ object UdacityNotes {
       """.stripMargin)
     pw.println(<h1 class="folderTitleHeader">{s"Folder Title: ${folderTitle}"}</h1>)
     val totalVideoTimeString = {
-      val parts = lessonFolders.flatMap(_.listFiles()).map(f => getEndTime(f).map(_.toMillis))
+      val parts = lessonFolders.flatMap(_.listFiles().filterNot(ff => ff.getName.startsWith("."))).map(f => getEndTime(f).map(_.toMillis))
       val numUnknowns = parts.count(_.isEmpty)
       val totalMillis = parts.collect{case Some(endTime) => endTime}.sum.millis
       val localTime = LocalTime.ofNanoOfDay(totalMillis.toNanos)
