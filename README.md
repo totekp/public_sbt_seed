@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/totekp/sbt_seed.svg)](https://travis-ci.org/totekp/sbt_seed)
+[![Build Status](https://travis-ci.org/totekp/public_sbt_seed.svg)](https://travis-ci.org/totekp/public_sbt_seed)
 
 ## Shortcuts
 - [`/project/Dependencies.scala`](/project/Dependencies.scala)

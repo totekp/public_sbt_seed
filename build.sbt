@@ -2,7 +2,7 @@ import sbt.Keys._
 
 import scalariform.formatter.preferences._
 
-name := "sbt_seed"
+name := "public_sbt_seed"
 
 val commonSettings: Seq[Setting[_]] = Seq(
   organization := "user.kzhou",

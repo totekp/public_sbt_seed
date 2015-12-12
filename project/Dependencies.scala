@@ -35,7 +35,7 @@ object Library {
 
   // # play stuff
   // https://www.playframework.com/changelog
-  val PlayLibrary = "com.typesafe.play" %% "play" % "2.4.3"
+  val PlayLibrary = "com.typesafe.play" %% "play" % "2.4.4"
   val PlayMailer = "com.typesafe.play" %% "play-mailer" % "3.0.1"
   // https://www.playframework.com/documentation/2.4.x/PlaySlick
   // slick is transitive
