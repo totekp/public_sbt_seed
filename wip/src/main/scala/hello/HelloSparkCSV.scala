@@ -35,6 +35,8 @@ object HelloSparkCSV extends Matchers {
     val sc = new SparkContext(conf)
     try {
       run(sc)
+      println("Enter any key to finish the job...")
+      Console.in.read()
     } catch {
       case NonFatal(t) =>
         throw t

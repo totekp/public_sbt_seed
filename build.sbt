@@ -52,7 +52,7 @@ lazy val pure = {
         resolvers ++= Seq(
         ),
         libraryDependencies ++= Seq(
-          "org.scalatest" %% "scalatest" % "2.2.4"
+          "org.scalatest" %% "scalatest" % "2.2.6"
         ),
         scalacOptions ++= Seq(
           // https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings
@@ -84,7 +84,9 @@ lazy val wip = {
       ),
       dependencyOverrides ++= Set(
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4"
-      )
+      ),
+      unmanagedResourceDirectories in Compile += baseDirectory.value / "conf",
+      unmanagedResourceDirectories in Test += baseDirectory.value / "conf"
     )
 }
 

@@ -6,19 +6,19 @@ object Library {
   val ScalaLibrary = "org.scala-lang" % "scala-library" % ScalaVersion
 
   // stable url: http://akka.io/news/
-  // http://akka.io/news/2015/09/30/akka-2.4.0-released.html
-  val AkkaVersion: String = "2.4.0"
+  // http://akka.io/news/2015/11/27/akka-2.4.1-released.html
+  val AkkaVersion: String = "2.4.1"
   val AkkaActor: ModuleID = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
   val AkkaCluster = "com.typesafe.akka" %% "akka-cluster" % AkkaVersion
   val AkkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion
   val AkkaTestkit = "com.typesafe.akka" %% "akka-testkit" % AkkaVersion
 
   // https://spark.apache.org/releases/spark-release-1-5-0.html
-  val SparkVersion = "1.5.1"
+  val SparkVersion = "1.6.0"
   val SparkCore = "org.apache.spark" %% "spark-core" % SparkVersion
   val SparkMLib = "org.apache.spark" %% "spark-mllib" % SparkVersion
   val SparkGraphX = "org.apache.spark" %% "spark-graphx" % SparkVersion
-  val SparkCSV = "com.databricks" %% "spark-csv" % "1.2.0"
+  val SparkCSV = "com.databricks" %% "spark-csv" % "1.3.0"
 
   val BreezeVersion = "0.11.2"
   val BreezeParent = "org.scalanlp" %% "breeze-parent" % BreezeVersion
@@ -35,7 +35,7 @@ object Library {
 
   // # play stuff
   // https://www.playframework.com/changelog
-  val PlayLibrary = "com.typesafe.play" %% "play" % "2.4.4"
+  val PlayLibrary = "com.typesafe.play" %% "play" % "2.4.6"
   val PlayMailer = "com.typesafe.play" %% "play-mailer" % "3.0.1"
   // https://www.playframework.com/documentation/2.4.x/PlaySlick
   // slick is transitive
@@ -45,13 +45,14 @@ object Library {
 
   // # other stuff
   val LogbackClassic = "ch.qos.logback" % "logback-classic" % "1.1.3"
-  val ScalaBcrypt = "com.github.t3hnar" %% "scala-bcrypt" % "2.4"
+  // https://github.com/t3hnar/scala-bcrypt
+  val ScalaBcrypt = "com.github.t3hnar" %% "scala-bcrypt" % "2.5"
   val StringMetrics = "com.rockymadden.stringmetric" %% "stringmetric-core" % "0.27.4"
   val JodaMoney = "org.joda" % "joda-money" % "0.10.0"
   val Jsap = "com.martiansoftware" % "jsap" % "2.1"
   val ApacheCommonsMath3 = "org.apache.commons" % "commons-math3" % "3.5"
   val TypesafeConfig = "com.typesafe" % "config" % "1.3.0"
-  val Jsoup = "org.jsoup" % "jsoup" % "1.8.2"
+  val Jsoup = "org.jsoup" % "jsoup" % "1.8.3"
   // stable url: https://github.com/stripe/stripe-java, https://github.com/stripe/stripe-java/blob/master/CHANGELOG
   val StripeJava = "com.stripe" % "stripe-java" % "1.37.1"
   /*
@@ -79,9 +80,9 @@ object Library {
   https://github.com/etorreborre/specs2/blob/master/notes/3.6.5.markdown
    */
   val Specs2Core = "org.specs2" %% "specs2-core" % "3.6.5"
-  // http://www.scalatest.org/release_notes (https://github.com/etorreborre/specs2/blob/master/notes/3.6.2.markdown)
-  val ScalaTest = "org.scalatest" %% "scalatest" % "2.2.4"
-  val ScalaTestPlus = "org.scalatestplus" %% "play" % "1.2.0"
+  // http://www.scalatest.org/release_notes (http://www.scalatest.org/release_notes/2.2.6)
+  val ScalaTest = "org.scalatest" %% "scalatest" % "2.2.6"
+  val ScalaTestPlus = "org.scalatestplus" %% "play" % "1.4.0"
   // https://github.com/rickynils/scalacheck/blob/master/RELEASE
   val ScalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.4"
   // https://github.com/cucumber/cucumber-jvm/blob/master/History.md#124-2015-07-23

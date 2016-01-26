@@ -7,7 +7,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import scala.util.control.NonFatal
 
 object HelloSpark {
-  def run(sc: SparkContext) {
+  def run(sc: SparkContext): Unit =  {
     val logFile = "project/Dependencies.scala"
     val logData = sc.textFile(logFile, 2).cache()
     val wordCount: RDD[(String, Int)] = {
@@ -22,14 +22,15 @@ object HelloSpark {
 //    val pw = new PrintWriter(new File("HelloSpark.out.txt"))
 //    pw.println(result.map {case (w, c) => s"$w,$c"}.mkString("\n"))
 //    pw.close()
-    sc.stop()
+
   }
 
   def main(args: Array[String]) {
-    val conf = new SparkConf().setMaster("local[2]").setAppName("HelloSparkGraphX")
-    val sc = new SparkContext(conf)
+    val sc = new SparkContext(master = "local[2]", appName = "HelloSpark")
     try {
       run(sc)
+      println("Enter any key to finish the job...")
+      Console.in.read()
     } catch {
       case NonFatal(t) =>
         throw t
