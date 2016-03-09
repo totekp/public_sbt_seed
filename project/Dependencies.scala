@@ -1,8 +1,8 @@
 import sbt._
 
 object Library {
-  // http://www.scala-lang.org/news/2.11.7
-  val ScalaVersion: String = "2.11.7"
+  // http://www.scala-lang.org/news/2.11.8
+  val ScalaVersion: String = "2.11.8"
   val ScalaLibrary = "org.scala-lang" % "scala-library" % ScalaVersion
 
   // stable url: http://akka.io/news/
