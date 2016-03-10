@@ -48,7 +48,7 @@ lazy val pure = {
       Seq(
         organization := "user.kzhou",
         version := "8.8-SNAPSHOT",
-        scalaVersion := "2.11.7",
+        scalaVersion := "2.11.8",
         resolvers ++= Seq(
         ),
         libraryDependencies ++= Seq(
